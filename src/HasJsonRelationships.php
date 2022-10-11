@@ -2,6 +2,9 @@
 
 namespace Staudenmeir\EloquentJsonRelations;
 
+use ArrayAccess;
+use Closure;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -11,6 +14,7 @@ use Illuminate\Database\Eloquent\Relations\HasOne;
 use Illuminate\Database\Eloquent\Relations\HasOneThrough;
 use Illuminate\Database\Eloquent\Relations\MorphMany;
 use Illuminate\Database\Eloquent\Relations\MorphOne;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Str;
 use Staudenmeir\EloquentJsonRelations\Relations\BelongsToJson;
 use Staudenmeir\EloquentJsonRelations\Relations\HasManyJson;
@@ -65,8 +69,9 @@ trait HasJsonRelationships
     public function getAttributeValue($key)
     {
         if (Str::contains($key, '->')) {
+        
             [$key, $path] = explode('->', $key, 2);
-
+            
             if (substr($key, -2) === '[]') {
                 $key = substr($key, 0, -2);
 
@@ -74,8 +79,9 @@ trait HasJsonRelationships
             }
 
             $path = str_replace(['->', '[]'], ['.', '.*'], $path);
-
-            return data_get($this->getAttributeValue($key), $path);
+            $value = $this->getRealValue($this->getAttributeValue($key));
+            
+            return data_get($value, $path);
         }
 
         return parent::getAttributeValue($key);
