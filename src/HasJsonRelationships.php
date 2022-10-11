@@ -2,6 +2,7 @@
 
 namespace Staudenmeir\EloquentJsonRelations;
 
+use ArrayAccess;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
@@ -65,8 +66,9 @@ trait HasJsonRelationships
     public function getAttributeValue($key)
     {
         if (Str::contains($key, '->')) {
+        
             [$key, $path] = explode('->', $key, 2);
-
+            
             if (substr($key, -2) === '[]') {
                 $key = substr($key, 0, -2);
 
@@ -74,8 +76,9 @@ trait HasJsonRelationships
             }
 
             $path = str_replace(['->', '[]'], ['.', '.*'], $path);
-
-            return data_get($this->getAttributeValue($key), $path);
+            $value = $this->getRealValue($this->getAttributeValue($key));
+            
+            return data_get($value, $path);
         }
 
         return parent::getAttributeValue($key);
@@ -295,5 +298,43 @@ trait HasJsonRelationships
     protected function newHasManyJson(Builder $query, Model $parent, $foreignKey, $localKey)
     {
         return new HasManyJson($query, $parent, $foreignKey, $localKey);
+    }
+    
+    /**
+     * Get the value in case not collection, closure or array
+     *
+     * @param  mixed $value
+     * @return mixed
+     */
+    public function getRealValue($value)
+    {
+        if(is_iterable($value) && !$value instanceof Collection && !$value instanceof Closure && !is_array($value) && !is_array($value) && !$value instanceof ArrayAccess)
+        {    
+            $arr = null; 
+            if(is_callable([$value, 'toArray']))
+            {
+                try
+                {
+                    $arr = $value->toArray();
+                }
+                catch(Exception $e) {
+                    if(is_callable([$value, 'alls']))
+                    {
+                        try
+                        {
+                            $arr = $value->all();
+                        }
+                        catch(Exception $e) {}
+                    }
+                }
+
+                if(is_array($arr)) $value = $arr;
+            }
+
+            
+            if(!$arr && is_object($value)) $value = (array) $value;
+        }
+
+        return $value;
     }
 }
