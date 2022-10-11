@@ -26,23 +26,6 @@ class HasManyJson extends HasMany
     }
 
     /**
-     * Execute the query as a "select" statement.
-     *
-     * @param array $columns
-     * @return \Illuminate\Database\Eloquent\Collection
-     */
-    public function get($columns = ['*'])
-    {
-        $models = parent::get($columns);
-
-        if ($this->key && !is_null($this->parent->{$this->localKey})) {
-            $this->hydratePivotRelation($models, $this->parent);
-        }
-
-        return $models;
-    }
-
-    /**
      * Set the base constraints on the relation query.
      *
      * @return void
@@ -230,12 +213,12 @@ class HasManyJson extends HasMany
     protected function pivotAttributes(Model $model, Model $parent)
     {
         $key = str_replace('->', '.', $this->key);
-        
-        $record = (new BaseCollection($model->getRealValue($model->{$this->getPathName()})))
-            ->filter(function ($value) use ($key, $parent, $model) {
-                
+
+        $record = (new BaseCollection($model->{$this->getPathName()}))
+            ->filter(function ($value) use ($key, $parent) {
                 return Arr::get($value, $key) == $parent->{$this->localKey};
             })->first();
+
         return Arr::except($record, $key);
     }
 

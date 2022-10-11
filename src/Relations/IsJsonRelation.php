@@ -45,6 +45,23 @@ trait IsJsonRelation
     }
 
     /**
+     * Execute the query as a "select" statement.
+     *
+     * @param array $columns
+     * @return \Illuminate\Database\Eloquent\Collection
+     */
+    public function get($columns = ['*'])
+    {
+        $models = parent::get($columns);
+
+        if ($this->key && !empty($this->parent->getAttributes())) {
+            $this->hydratePivotRelation($models, $this->parent);
+        }
+
+        return $models;
+    }
+
+    /**
      * Hydrate the pivot relationship on the models.
      *
      * @param \Illuminate\Database\Eloquent\Collection $models
@@ -56,10 +73,7 @@ trait IsJsonRelation
         foreach ($models as $i => $model) {
             $clone = clone $model;
 
-            $models[$i] = $clone->setRelation(
-                $this->getPivotAccessor(),
-                $this->pivotRelation($clone, $parent)
-            );
+            $models[$i] = $clone->setRelation('pivot', $this->pivotRelation($clone, $parent));
         }
     }
 
@@ -127,15 +141,5 @@ trait IsJsonRelation
         }
 
         throw new RuntimeException('This database is not supported.'); // @codeCoverageIgnore
-    }
-
-    /**
-     * Get the name of the pivot accessor for this relationship.
-     *
-     * @return string
-     */
-    public function getPivotAccessor(): string
-    {
-        return 'pivot';
     }
 }
