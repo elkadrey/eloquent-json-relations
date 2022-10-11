@@ -3,6 +3,8 @@
 namespace Staudenmeir\EloquentJsonRelations;
 
 use ArrayAccess;
+use Closure;
+use Exception;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use Illuminate\Database\Eloquent\Relations\BelongsTo;
