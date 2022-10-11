@@ -1,5 +1,5 @@
 {
-    "name": "staudenmeir/eloquent-json-relations",
+    "name": "elkadrey/eloquent-json-relations",
     "description": "Laravel Eloquent relationships with JSON keys",
     "license": "MIT",
     "authors": [

@@ -213,12 +213,12 @@ class HasManyJson extends HasMany
     protected function pivotAttributes(Model $model, Model $parent)
     {
         $key = str_replace('->', '.', $this->key);
-
-        $record = (new BaseCollection($model->{$this->getPathName()}))
-            ->filter(function ($value) use ($key, $parent) {
+        
+        $record = (new BaseCollection($model->getRealValue($model->{$this->getPathName()})))
+            ->filter(function ($value) use ($key, $parent, $model) {
+                
                 return Arr::get($value, $key) == $parent->{$this->localKey};
             })->first();
-
         return Arr::except($record, $key);
     }
 

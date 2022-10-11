@@ -296,4 +296,42 @@ trait HasJsonRelationships
     {
         return new HasManyJson($query, $parent, $foreignKey, $localKey);
     }
+
+    /**
+     * Get the value in case not collection, closure or array
+     *
+     * @param  mixed $value
+     * @return mixed
+     */
+    public function getRealValue($value)
+    {
+        if(is_iterable($value) && !$value instanceof Collection && !$value instanceof Closure && !is_array($value) && !is_array($value) && !$value instanceof ArrayAccess)
+        {    
+            $arr = null; 
+            if(is_callable([$value, 'toArray']))
+            {
+                try
+                {
+                    $arr = $value->toArray();
+                }
+                catch(Exception $e) {
+                    if(is_callable([$value, 'alls']))
+                    {
+                        try
+                        {
+                            $arr = $value->all();
+                        }
+                        catch(Exception $e) {}
+                    }
+                }
+
+                if(is_array($arr)) $value = $arr;
+            }
+
+            
+            if(!$arr && is_object($value)) $value = (array) $value;
+        }
+
+        return $value;
+    }
 }
