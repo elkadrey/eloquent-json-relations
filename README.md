@@ -21,11 +21,11 @@ It also provides [many-to-many](#many-to-many-relationships) relationships with 
 
 ## Installation
 
-    composer require "staudenmeir/eloquent-json-relations:^1.1"
+    composer require "elkadrey/eloquent-json-relations:^1.1"
 
 Use this command if you are in PowerShell on Windows (e.g. in VS Code):
 
-    composer require "staudenmeir/eloquent-json-relations:^^^^1.1"
+    composer require "elkadrey/eloquent-json-relations:^^^^1.1"
 
 ## Usage
 
