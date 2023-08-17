@@ -204,7 +204,7 @@ class BelongsToJson extends BelongsTo
                 return Arr::get($value, $key) == $model->{$this->ownerKey};
             })->first();
 
-        return Arr::except($record, $key);
+        return Arr::except($record ?? [], $key);
     }
 
     /**
